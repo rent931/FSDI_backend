@@ -165,4 +165,22 @@ def get_mostExpensive():
 
 
 
+@app.route("/api/couponCodes", methods=["POST"])
+def save_coupon():
+    couponCode = request.get_json()
+
+    if not "code" in couponCode:
+        return abort(400, "code is required")
+  
+    if not "discount" in couponCode:
+        return abort(400, "discount is required")
+
+    db.couponCodes.insert_one(couponCode)
+
+    couponCode["_id"] = str(couponCode["_id"])
+    return json.dumps(couponCode)
+
+
+
+
 app.run(debug=True, port=5001)
