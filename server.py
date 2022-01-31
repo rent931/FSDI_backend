@@ -117,9 +117,10 @@ def get_product(id):
 @app.route("/api/catalog/<category>")
 def get_by_category(category):
     result = []
-    for product in catalog:
-        if product["category"].lower() == category.lower():
-            result.append(product)
+    cursor = db.products.find({"category": category})
+    for prod in cursor:
+        prod["_id"] = str(prod["_id"])
+        result.append(prod)
 
     return json.dumps(result)
 
@@ -164,6 +165,18 @@ def get_mostExpensive():
     return json.dumps(expensive)
 
 
+@app.route("/api/couponCodes")
+def get_coupon_codes():
+    cursor = db.couponCodes.find({})
+    result = []
+
+    for coupon in cursor:
+        coupon["_id"] = str(coupon["_id"])
+        result.append(coupon)
+
+    return json.dumps(result)
+
+
 
 @app.route("/api/couponCodes", methods=["POST"])
 def save_coupon():
@@ -180,7 +193,16 @@ def save_coupon():
     couponCode["_id"] = str(couponCode["_id"])
     return json.dumps(couponCode)
 
+@app.route("/api/couponCodes/<code>")
+def valid_coupon(code):
+    print(code)
 
+    coupon = db.couponCodes.find_one({"code": code})
+    if not coupon:
+        return abort(404)
 
+    coupon["_id"] = str(coupon["-id"])
+
+    return json.dumps(coupon)
 
 app.run(debug=True, port=5001)
